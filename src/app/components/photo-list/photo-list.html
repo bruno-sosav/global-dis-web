@@ -1,0 +1,129 @@
+<div class="card">
+  <div class="card-header">
+    <h2 class="mb-0">Gestión de Fotos</h2>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center p-4">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="!loading" class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-striped table-hover mb-0">
+        <thead class="table-dark">
+          <tr>
+            <th>ID</th>
+            <th>Album ID</th>
+            <th>Título</th>
+            <th>URL</th>
+            <th>Miniatura</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let photo of photos">
+            <td>{{ photo.id }}</td>
+            <td>{{ photo.albumId }}</td>
+            <td>{{ photo.title }}</td>
+            <td>
+              <a [href]="photo.url" target="_blank" class="text-decoration-none">
+                {{ photo.url | slice:0:30 }}...
+              </a>
+            </td>
+            <td>
+              <img [src]="photo.thumbnailUrl" [alt]="photo.title" class="img-thumbnail" style="width: 50px; height: 50px;">
+            </td>
+            <td>
+              <button class="btn btn-warning btn-sm me-1" (click)="editPhoto(photo)">
+                Editar
+              </button>
+              <button class="btn btn-danger btn-sm" (click)="deletePhoto(photo.id)">
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+        
+        <!-- TFOOT para agregar nuevos registros -->
+        <tfoot class="table-secondary">
+          <tr>
+            <td>Nuevo</td>
+            <td>
+              <input type="number" class="form-control form-control-sm" 
+                     [(ngModel)]="newPhoto.albumId" min="1">
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" 
+                     [(ngModel)]="newPhoto.title" placeholder="Título">
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" 
+                     [(ngModel)]="newPhoto.url" placeholder="URL">
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" 
+                     [(ngModel)]="newPhoto.thumbnailUrl" placeholder="URL miniatura">
+            </td>
+            <td>
+              <button class="btn btn-success btn-sm" 
+                      (click)="addPhoto()"
+                      [disabled]="!newPhoto.title || !newPhoto.url || !newPhoto.thumbnailUrl">
+                Agregar
+              </button>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para edición -->
+<div class="modal fade show" [class.d-block]="isEditing" [class.show]="isEditing" 
+     *ngIf="isEditing" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Foto</h5>
+        <button type="button" class="btn-close" (click)="closeModal()"></button>
+      </div>
+      <div class="modal-body" *ngIf="selectedPhoto">
+        <form>
+          <div class="mb-3">
+            <label class="form-label">Album ID</label>
+            <input type="number" class="form-control" [(ngModel)]="selectedPhoto.albumId" 
+                   name="albumId" min="1">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Título</label>
+            <input type="text" class="form-control" [(ngModel)]="selectedPhoto.title" 
+                   name="title" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">URL</label>
+            <input type="text" class="form-control" [(ngModel)]="selectedPhoto.url" 
+                   name="url" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">URL Miniatura</label>
+            <input type="text" class="form-control" [(ngModel)]="selectedPhoto.thumbnailUrl" 
+                   name="thumbnailUrl" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+        <button type="button" class="btn btn-primary" 
+                (click)="updatePhoto()"
+                [disabled]="!selectedPhoto?.title || !selectedPhoto?.url || !selectedPhoto?.thumbnailUrl">
+          Guardar Cambios
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show" *ngIf="isEditing"></div>
